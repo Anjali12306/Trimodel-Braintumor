@@ -1,0 +1,21 @@
+# Node
+node_modules/
+
+# Environment variables
+.env
+
+# Backend uploads (MRI images)
+backend/uploads/
+
+# Frontend build
+frontend/dist/
+
+# AI model weights
+ai_service/model/*.pth
+
+# Logs
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
