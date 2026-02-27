@@ -1,20 +1,32 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import api from "../api/api";
 
 export default function CreateVisit() {
-  const [patientId, setPatientId] = useState("");
+  const [patients, setPatients] = useState([]);
+  const [selectedPatient, setSelectedPatient] = useState("");
   const [message, setMessage] = useState("");
 
+  // Load all patients for receptionist
+  useEffect(() => {
+    api
+      .get("/patients") // receptionist can see all patients
+      .then((res) => setPatients(res.data))
+      .catch(() => setMessage("❌ Failed to load patients"));
+  }, []);
+
   const createVisit = async () => {
-    if (!patientId) {
-      setMessage("❌ Patient ID required");
+    if (!selectedPatient) {
+      setMessage("❌ Please select a patient");
       return;
     }
 
     try {
-      await api.post("/visits", { patientId }); // ✅ CORRECT
+      await api.post("/visits", {
+        patientId: selectedPatient,
+      });
+
       setMessage("✅ Visit created successfully");
-      setPatientId("");
+      setSelectedPatient("");
     } catch (err) {
       setMessage("❌ Failed to create visit");
     }
@@ -26,13 +38,21 @@ export default function CreateVisit() {
 
       {message && <p>{message}</p>}
 
-      <input
-        placeholder="Patient ID"
-        value={patientId}
-        onChange={(e) => setPatientId(e.target.value)}
-      />
+      <select
+        value={selectedPatient}
+        onChange={(e) => setSelectedPatient(e.target.value)}
+      >
+        <option value="">Select Patient</option>
+        {patients.map((p) => (
+          <option key={p._id} value={p._id}>
+            {p.name}
+          </option>
+        ))}
+      </select>
 
-      <button onClick={createVisit}>Create</button>
+      <br /><br />
+
+      <button onClick={createVisit}>Create Visit</button>
     </div>
   );
 }
